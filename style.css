@@ -1,0 +1,6 @@
+.select:hover{
+
+    background: aliceblue;
+    cursor: pointer;
+    outline: auto;
+}
