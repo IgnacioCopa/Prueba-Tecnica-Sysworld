@@ -1,11 +1,10 @@
 let id_temp= "";
-let change="";
 let clicks_country=0;
 let infoArray,country,click_id,clicksAll;
 let countryArray=[];
 let z= 0;
-let info;
-let asd;
+let select;
+let id;
 
 
 let url_region = [
@@ -21,8 +20,8 @@ let url_region = [
 window.onload = () => {
 
     //API
-    countryAPI();
-    document.getElementById(`country`).addEventListener("click",showInfo);
+    countryAPI(); 
+    
 }
 
 //API--------------------------------->
@@ -45,14 +44,20 @@ const countryAPI = () => {
             //console.log(countryArray);
         
         })
-        .then(e =>{
+        .then( async e =>{
 
             i++;
             if(i==url_region.length){
 
                 //cargar
                 loader();
+
+                //ordenar
                 orderby();
+
+                //ecento click
+                document.getElementById(`country`).addEventListener("click",showInfo);            
+
                 i=0
             }
 
@@ -66,60 +71,53 @@ const countryAPI = () => {
 }
 
 // (ID = dinamico)
-const showInfo =  () =>{
+const showInfo = (a) =>{
 
-    const select = document.querySelectorAll(".select")
-
-    if (info==null){
-
-        select.forEach(  element => {
+    let v = true;
+    select.forEach( element => {
     
-            element.addEventListener("click", elem => {
+        element.addEventListener("click", elem => {
                     
-                //console.log("primera vez") 
-                const id = elem.target.getAttribute("id");
-                            
-                if(id!=null)
-                {
-                    change= id; 
-                    info= document.getElementById(`${change}a`);
-                    
-     
+            //console.log("primera vez")
+            if(elem!=null){
+
+                id = elem.target.getAttribute("id");
+
+                if(v){
+                    v=false;
+                    OpenClose(id);
                 }
+                
+            }           
                    
-            });
-     
         });
+     
+    });
 
-    }
-
-    else{
-        OpenClose();
-    }
 
 }
 
 
 //abrir y cerrar desplegable----------------------------->
 
-const OpenClose = () =>{
+const OpenClose = async (id) =>{
 
-    if(info.style.display=="none")
+    if(document.getElementById(`${id}a`).style.display=="none")
     {
-        info.style.display="flex";
-        load(change);      
+        document.getElementById(`${id}a`).style.display="flex";
+        write(id);      
         
     }
     else
     {
-        info.style.display="none";
-        load(change); 
+        write(id);
+        document.getElementById(`${id}a`).style.display="none";
                        
-    } 
+    }
 }
 
 
-//actualizar----------------------------------------------------------------------->
+//actualizar inicio de PAGINA----------------------------------------------------------------------->
 const loader = () =>{
 
     $.ajax({
@@ -138,15 +136,12 @@ const loader = () =>{
 
                         if(element.country.name.official ==  infoEl.country){
 
-                            document.getElementById(`${infoEl.country}b`).innerText= infoEl.clicks;
-                            element.clicks=infoEl.clicks;
-                            
+                            element.clicks= parseInt(infoEl.clicks);
+                            //document.getElementById(`${infoEl.country}b`).innerText= parseInt(infoEl.clicks);
                             
                         }
                         else
                         {
-
-        
                             if(z<infoArray.length){
                                 z++;
                                     
@@ -154,15 +149,13 @@ const loader = () =>{
                             else{
                                 z=0;
                                 
-                            }
-                                                                                    
+                            }                                                         
                         }
                                                                  
                     });                                                                          
                     
                 });
-                        
-            
+                                   
             }
         
         }
@@ -171,71 +164,75 @@ const loader = () =>{
 
 }
 
-//cargar datos y recivirlos ----------------------------------------------------------------------->
+//cargar datos----------------------------------------------------------------------->
 
-const load = (a)=>{
-
-    country = document.getElementById(a).firstChild.nextSibling.innerText; //nombre pais
+const write = (a)=>{
+   
+    country = document.getElementById(a).id; //nombre pais
 
     click_id = document.getElementById(`${a}b`);
+  
+    //enviar datos al servidor-----------------------
 
-        //enviar datos al servidor-----------------------
+    let send_click = parseInt(click_id.innerText);
+    
+    const sendData={
+        n_country: country,
+        clicks: send_click,
+    }
+    
+    $.post('countrySend.php',sendData, function(res){
+    
+        console.log(res);
+        load();
+    })
+    
 
-        let send_click = parseInt(click_id.innerText);
+}
 
-        if(send_click==0){
-            send_click=0
-        }
-    
-        const sendData={
-            n_country: country,
-            clicks: send_click,
-        }
-    
-        $.post('countrySend.php',sendData, function(res){
-    
-            console.log(res);
-        })
-    
+//recivirlos los datos------------------------------------------------->
+
+const load = () =>{
+
     //mostrar datos del servidor---------------------
     $.ajax({
 
         url:'countrySelect.php',
         type: 'GET',             
         success: function(res){
-            
-            if(res != ""){  
                 
+            if(res != ""){  
+                    
                 infoArray = JSON.parse(res); //respuesta
-
+    
                 infoArray.forEach( elem =>{
-                                                
+                                                    
                     if(elem.country == country){
                         click_id.innerText = elem.clicks;
-
+    
+                        console.log(elem.clicks);
                     }
                     else{
                         clicks_country= 0;
                     }
-                                            
+                                                
                 })
             }
-                         
+                             
         },
-
+    
         error: function(e){console.log(e)}
-            
-    })
-
+                
+    })  
 }
 
 
 //ordenar datos--------------------------------------------------------->
-const orderby = () =>{
+const orderby = async () =>{
 
-    //ordenar
-    countryArray.sort( (a,b) => {
+    countryArray.sort((a,b)=>{
 
+        //ordenar por orden alfabetico
         if(a.country.name.official > b.country.name.official){
             return 1;
         }
@@ -243,9 +240,43 @@ const orderby = () =>{
             return -1
         }
 
-    });
+    })
 
-    //console.log(countryArray)
+    //espera 2 segundos
+    await awaitTwoSeconds();
+    
+    //promesa para el tiempo de acomodamiento del array
+    function awaitTwoSeconds() {
+
+        return new Promise(resolve => {
+
+            setTimeout(() => {
+                
+                resolve(print());
+            }, 1000);
+
+        });
+
+    }
+      
+}
+
+//imprimir por pantalla los resultados
+
+const print = async () =>{
+
+    //ordenar por clicks
+    countryArray.sort((a,b)=>{
+        
+        if (a.clicks>b.clicks){
+        
+            return -1}
+        
+        else{
+        
+            return 1}
+    })
+
 
     countryArray.forEach( country =>{
 
@@ -256,15 +287,17 @@ const orderby = () =>{
         let country_name = document.getElementById("country");
     
         const div = document.createElement('div');
+        div.setAttribute('class','my-2');
     
         div.innerHTML= `
-        <div class="select d-flex justify-content-between mb-3 mt-3 px-3" id="${id_temp}" style="height: 3em;">
-            <p style= "align-self: end;">${country.country.name.official}</p>
-            <p>Clicks:</p> <p style= "align-self: end;" id="${id_temp}b">${country.clicks}</p>
-            <img src=${country.country.flags.png}></img>
+        <div class="bg-light select row" style="height: 3em;">
+            <p class="col-9" style= "align-self: end;" id="${id_temp}">${country.country.name.official}</p>
+            <p class="col-1" style= "align-self: end;"> Clicks:</p> 
+            <p class="col-1" style= "align-self: end;" id="${id_temp}b">${country.clicks}</p>
+            <div class="col-1"> <img  src=${country.country.flags.png} style="height: 3em;"></img> </div>
         </div>
     
-        <div class="get justify-content-between mb-3 mt-3 px-3" id="${id_temp}a" style="display: none; background: bisque;">
+        <div class="get justify-content-between mb-3 mt-3 px-3" id="${id_temp}a" style="display: none;">
             <div>
                 <p>Population</p>
                 <p>${country.country.population}</p>
@@ -283,5 +316,11 @@ const orderby = () =>{
     country_name.appendChild(div);
 
     })
-            
+
+    //variables de clicks
+    select = document.querySelectorAll(".col-9")
+    document.getElementById(`country`).addEventListener("click",showInfo);
+    
+    //ejecutar clicks
+    showInfo(select);
 }

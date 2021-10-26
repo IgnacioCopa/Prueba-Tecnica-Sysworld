@@ -13,8 +13,7 @@
 <body>
 
 <div class="container">
-
-    <div style="display: display: flex;justify-content: space-between;"><p>Paises</p><p>Banderas</p></div>
+    
     <div id="country" class="text-center mt-5 mb-5"></div>
 
 </div>

@@ -26,13 +26,7 @@ include ('connection.php');
         $json_package = json_encode($json);
         echo $json_package;
             
-    }
-    else{
-
-
-    }
-
-        
+    }        
    
 
 ?>
