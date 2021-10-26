@@ -286,14 +286,15 @@ const print = async () =>{
             
         let country_name = document.getElementById("country");
     
-        const div = document.createElement('div');
-        div.setAttribute('class','my-2');
+        const button = document.createElement('button');
+        button.setAttribute('class','my-2');
+        button.setAttribute('style','border: none');
     
-        div.innerHTML= `
+        button.innerHTML= `
         <div class="bg-light select row" style="height: 3em;">
-            <p class="col-9" style= "align-self: end;" id="${id_temp}">${country.country.name.official}</p>
-            <p class="col-1" style= "align-self: end;"> Clicks:</p> 
-            <p class="col-1" style= "align-self: end;" id="${id_temp}b">${country.clicks}</p>
+            <p class="col-9" style= "align-self: end; padding: 10px; border: none;" id="${id_temp}">${country.country.name.official}</p>
+            <p class="col-1" style= "align-self: end; padding: 10px; border: none;"> Clicks:</p> 
+            <p class="col-1" style= "align-self: end; padding: 10px; border: none;" id="${id_temp}b">${country.clicks}</p>
             <div class="col-1"> <img  src=${country.country.flags.png} style="height: 3em;"></img> </div>
         </div>
     
@@ -313,7 +314,7 @@ const print = async () =>{
         </div>
         `;
     
-    country_name.appendChild(div);
+    country_name.appendChild(button);
 
     })
 

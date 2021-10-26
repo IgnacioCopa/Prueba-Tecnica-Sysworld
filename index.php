@@ -14,7 +14,14 @@
 
 <div class="container">
     
-    <div id="country" class="text-center mt-5 mb-5"></div>
+    <div id="country" class="text-center mt-5 mb-5 list-group">
+        <div class=" row bg-primary mb-3" style="height: 3em; color: white;">
+            <p class="col-9" style= "align-self: end;" >Name</p>
+            <p class="col-1" style= "align-self: end;">Clicks</p> 
+            <p class="col-1" style= "align-self: end;">Number</p>
+            <p class="col-1" style= "align-self: end;">Flag</p>
+        </div>
+    </div>
 
 </div>
 
